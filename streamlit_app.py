@@ -1,10 +1,12 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 import time
+import json
 
 from src.ui.theme import apply_theme
 from src.ui.components import metric_card, alert_box
 from src.models.verification_engine import VerificationEngine
+from src.utils.logger import AnalysisLogger
 
 # Page configuration
 st.set_page_config(
@@ -53,7 +55,7 @@ with st.sidebar:
     """)
     
     st.markdown("---")
-    if st.button("🔄 Reset Analysis", use_container_width=True):
+    if st.button("🔄 Reset Analysis", width='stretch'):
         st.session_state.results = None
         st.session_state.last_content = ""
         st.rerun()
@@ -110,22 +112,66 @@ with col2:
 
 st.markdown("---")
 
-# Analyze button
-if st.button("🔍 Analyze Content", use_container_width=True, key="analyze_btn"):
-    if content.strip():
-        st.session_state.last_content = content
-        
-        with st.spinner(f"🔄 Analyzing {selected} content with Snowflake Cortex AI..."):
-            try:
-                engine = VerificationEngine()
-                results = engine.verify(selected.lower(), content)
-                st.session_state.results = results
+# Analyze button with logs
+col1, col2 = st.columns([3, 1])
+
+with col1:
+    if st.button("🔍 Analyze Content", width='stretch', key="analyze_btn"):
+        if content.strip():
+            st.session_state.last_content = content
+            
+            # Create a container for real-time logs
+            log_container = st.container()
+            
+            with log_container:
+                st.markdown("### 📋 Real-time Analysis Log")
+                log_placeholder = st.empty()
+                logs = []
                 
-            except Exception as e:
-                alert_box(f"❌ Analysis failed: {str(e)}", alert_type="error")
-                st.session_state.results = None
-    else:
-        alert_box("⚠️ Please paste content for analysis before clicking Analyze.", alert_type="warning")
+                def add_log(message, log_type="info"):
+                    timestamp = time.strftime("%H:%M:%S")
+                    log_entry = f"[{timestamp}] {message}"
+                    logs.append(log_entry)
+                    
+                    # Display formatted logs
+                    if log_type == "success":
+                        icon = "✅"
+                    elif log_type == "error":
+                        icon = "❌"
+                    elif log_type == "warning":
+                        icon = "⚠️"
+                    else:
+                        icon = "ℹ️"
+                    
+                    log_display = "\n".join([f"{icon} {log}" for log in logs])
+                    log_placeholder.markdown(f"```\n{log_display}\n```")
+                
+                try:
+                    add_log("Initializing verification engine...", "info")
+                    engine = VerificationEngine()
+                    
+                    add_log(f"Starting analysis for category: {selected.lower()}", "info")
+                    add_log(f"Content length: {len(content)} characters", "info")
+                    
+                    with st.spinner(f"🔄 Analyzing {selected} content with Snowflake Cortex AI..."):
+                        results = engine.verify(selected.lower(), content)
+                    
+                    add_log("Analysis complete!", "success")
+                    add_log(f"Models queried: {len(results.get('individual_responses', {}))}", "success")
+                    
+                    st.session_state.results = results
+                    
+                except Exception as e:
+                    add_log(f"Analysis failed: {str(e)}", "error")
+                    alert_box(f"❌ Analysis failed: {str(e)}", alert_type="error")
+                    st.session_state.results = None
+        else:
+            alert_box("⚠️ Please paste content for analysis before clicking Analyze.", alert_type="warning")
+
+with col2:
+    st.markdown("###")
+    if st.button("📥 View Logs", width='content'):
+        st.info("Logs shown in real-time above during analysis")
 
 # Display results if available
 if st.session_state.results:
@@ -195,17 +241,18 @@ if st.session_state.results:
     col1, col2 = st.columns(2)
     
     with col1:
-        if st.button("📥 Export Results as JSON", use_container_width=True):
+        if st.button("📥 Export Results as JSON", width='stretch'):
             import json
             json_str = json.dumps(results, indent=2)
             st.download_button(
                 label="Download JSON",
                 data=json_str,
                 file_name=f"analysis_{selected.lower()}.json",
-                mime="application/json"
+                mime="application/json",
+                width='stretch'
             )
     
     with col2:
-        if st.button("📋 Copy to Clipboard", use_container_width=True):
+        if st.button("📋 Copy to Clipboard", width='stretch'):
             st.success("Results formatted for clipboard!")
             st.code(str(results), language="python")
