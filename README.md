@@ -132,8 +132,7 @@ pip install -r requirements.txt
 ```env
 SNOWFLAKE_ACCOUNT=<account_name>
 SNOWFLAKE_USER=<user>
-SNOWFLAKE_PASSWORD=<password>
-SNOWFLAKE_WAREHOUSE=<warehouse>
+SNOWFLAKE_PAT= Personal access token
 ```
 
 2. Update API keys for **Mistral, Claude, Llama** if needed.
