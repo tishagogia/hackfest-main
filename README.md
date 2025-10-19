@@ -1,6 +1,6 @@
 
 
-# TruthGuard AI for MLH Open Source HackFest
+# TruthGuard AI 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)  
 [![Python](https://img.shields.io/badge/Python-3.11+-blue)](https://www.python.org/)  
@@ -172,14 +172,7 @@ Please follow the **code of conduct** and ensure all new features are tested.
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
----
 
-## Acknowledgements
-
-* [Snowflake Cortex](https://www.snowflake.com/cortex/)
-* OpenAI Models: Mistral, Claude, Llama
-* [Streamlit](https://streamlit.io)
-* MLH Hackathon & organizers
 
 ```
 
