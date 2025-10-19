@@ -1,6 +1,6 @@
 
 
-# TruthGuard AI
+# TruthGuard AI for MLH Open Source HackFest
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)  
 [![Python](https://img.shields.io/badge/Python-3.11+-blue)](https://www.python.org/)  
